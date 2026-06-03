@@ -33,37 +33,74 @@ WEEKDAY_NAMES: dict[str, int] = {
 }
 
 MONTH_NAMES: dict[str, int] = {
-    "january": 1, "jan": 1,
-    "february": 2, "feb": 2,
-    "march": 3, "mar": 3,
-    "april": 4, "apr": 4,
+    "january": 1,
+    "jan": 1,
+    "february": 2,
+    "feb": 2,
+    "march": 3,
+    "mar": 3,
+    "april": 4,
+    "apr": 4,
     "may": 5,
-    "june": 6, "jun": 6,
-    "july": 7, "jul": 7,
-    "august": 8, "aug": 8,
-    "september": 9, "sep": 9, "sept": 9,
-    "october": 10, "oct": 10,
-    "november": 11, "nov": 11,
-    "december": 12, "dec": 12,
+    "june": 6,
+    "jun": 6,
+    "july": 7,
+    "jul": 7,
+    "august": 8,
+    "aug": 8,
+    "september": 9,
+    "sep": 9,
+    "sept": 9,
+    "october": 10,
+    "oct": 10,
+    "november": 11,
+    "nov": 11,
+    "december": 12,
+    "dec": 12,
 }
 
 WORD_TO_NUM: dict[str, int] = {
-    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4,
-    "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
-    "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13,
-    "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
-    "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30,
-    "a": 1, "an": 1,
+    "zero": 0,
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "eleven": 11,
+    "twelve": 12,
+    "thirteen": 13,
+    "fourteen": 14,
+    "fifteen": 15,
+    "sixteen": 16,
+    "seventeen": 17,
+    "eighteen": 18,
+    "nineteen": 19,
+    "twenty": 20,
+    "thirty": 30,
+    "a": 1,
+    "an": 1,
 }
 
 UNIT_ALIASES: dict[str, str] = {
-    "day": "days", "days": "days",
-    "week": "weeks", "weeks": "weeks",
-    "month": "months", "months": "months",
-    "year": "years", "years": "years",
-    "yr": "years", "yrs": "years",
-    "wk": "weeks", "wks": "weeks",
-    "mo": "months", "mos": "months",
+    "day": "days",
+    "days": "days",
+    "week": "weeks",
+    "weeks": "weeks",
+    "month": "months",
+    "months": "months",
+    "year": "years",
+    "years": "years",
+    "yr": "years",
+    "yrs": "years",
+    "wk": "weeks",
+    "wks": "weeks",
+    "mo": "months",
+    "mos": "months",
     "d": "days",
     "w": "weeks",
     "m": "months",
@@ -74,6 +111,7 @@ UNIT_ALIASES: dict[str, str] = {
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _resolve_today(today: date | None) -> date:
     return today if today is not None else date.today()
@@ -173,7 +211,11 @@ def _parse_offset_segments(s: str) -> relativedelta | None:
         # Map to canonical
         canonical = None
         for alias, canon in UNIT_ALIASES.items():
-            if raw_unit == alias or raw_unit == alias.rstrip("s") or raw_unit.rstrip("s") == alias.rstrip("s"):
+            if (
+                raw_unit == alias
+                or raw_unit == alias.rstrip("s")
+                or raw_unit.rstrip("s") == alias.rstrip("s")
+            ):
                 canonical = canon
                 break
         if num is None or canonical is None:
@@ -206,6 +248,7 @@ def _try_parse_absolute(s: str) -> date | None:
 # ---------------------------------------------------------------------------
 # Main parse logic
 # ---------------------------------------------------------------------------
+
 
 def parse(s: str, today: date | None = None) -> date:
     """
@@ -377,7 +420,9 @@ def parse(s: str, today: date | None = None) -> date:
     # 9. "the <weekday> of next/last/this week"
     # ------------------------------------------------------------------
     m = re.fullmatch(
-        r"(?:the\s+)?(" + "|".join(WEEKDAY_NAMES.keys()) + r")\s+of\s+(next|last|this)\s+week",
+        r"(?:the\s+)?("
+        + "|".join(WEEKDAY_NAMES.keys())
+        + r")\s+of\s+(next|last|this)\s+week",
         text,
         re.IGNORECASE,
     )
@@ -395,7 +440,11 @@ def parse(s: str, today: date | None = None) -> date:
     # ------------------------------------------------------------------
     # 10. "end of next/last/this month/year/week"
     # ------------------------------------------------------------------
-    m = re.fullmatch(r"(?:the\s+)?end\s+of\s+(next|last|this)\s+(week|month|year)", text, re.IGNORECASE)
+    m = re.fullmatch(
+        r"(?:the\s+)?end\s+of\s+(next|last|this)\s+(week|month|year)",
+        text,
+        re.IGNORECASE,
+    )
     if m:
         modifier = m.group(1).lower()
         unit = m.group(2).lower()
@@ -407,10 +456,18 @@ def parse(s: str, today: date | None = None) -> date:
                 start -= timedelta(weeks=1)
             return start + timedelta(days=6)
         if unit == "month":
-            base = ref + relativedelta(months=(1 if modifier == "next" else -1 if modifier == "last" else 0))
-            return date(base.year, base.month, 1) + relativedelta(months=1) - timedelta(days=1)
+            base = ref + relativedelta(
+                months=(1 if modifier == "next" else -1 if modifier == "last" else 0)
+            )
+            return (
+                date(base.year, base.month, 1)
+                + relativedelta(months=1)
+                - timedelta(days=1)
+            )
         if unit == "year":
-            year = ref.year + (1 if modifier == "next" else -1 if modifier == "last" else 0)
+            year = ref.year + (
+                1 if modifier == "next" else -1 if modifier == "last" else 0
+            )
             return date(year, 12, 31)
 
     # ------------------------------------------------------------------
@@ -435,6 +492,7 @@ def parse(s: str, today: date | None = None) -> date:
 # ---------------------------------------------------------------------------
 # Helpers used inside parse
 # ---------------------------------------------------------------------------
+
 
 def _normalise_unit(raw: str) -> str | None:
     raw = raw.lower()
